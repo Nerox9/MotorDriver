@@ -5,4 +5,5 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(motordriver)
+add_subdirectory(statemachine)
 add_subdirectory(master)

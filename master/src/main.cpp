@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "motordriver.h"
+#include "tests.h"
 
 
 /**
@@ -12,6 +13,10 @@
 
 int main(void)
 {
+	std::cout << "Starting tests:" << std::endl;
+	Tests();
+	std::cout << std::endl;
+
     std::cout << "Starting simulated motor driver" << std::endl;
 
 

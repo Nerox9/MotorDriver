@@ -4,6 +4,9 @@
     <ClCompile Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\master\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\master\src\tests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\master\CMakeLists.txt" />
@@ -15,5 +18,10 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{217FF634-4647-3F6B-8F07-767FD2E5423E}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\tests.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
