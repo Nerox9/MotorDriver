@@ -350,3 +350,8 @@ MigrationBackup/
 .ionide/
 /build/CMakeFiles
 /build/master/CMakeFiles
+/CMakeFiles/3.14.4
+/CMakeFiles/63dba8f04094d053cf3df1ec82b99375
+/CMakeFiles
+/master/CMakeFiles
+/motordriver/CMakeFiles
