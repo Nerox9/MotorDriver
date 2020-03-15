@@ -77,8 +77,8 @@ public:
 	State(MotorState, MotorState, const TCond, const TOnEntry);
 	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit);
 	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit, const TAction);
-	// Deconstructor
-	~State();
+	// Destructor
+	//~State();
 };
 
 class StateMachine : public StateMachineBase
@@ -98,8 +98,8 @@ public:
 	StateMachine();
 	// Constructor
 	StateMachine(MotorDriver *mtrDriver);
-	// Deconstructor
-	~StateMachine();
+	// Destructor
+	//~StateMachine();
 
 	// Add a state to state map
 	void addState(State *state);

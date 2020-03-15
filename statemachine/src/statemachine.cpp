@@ -27,10 +27,12 @@ State::State(MotorState mtrState, MotorState next, const TCond transCond, const 
 
 }
 
+/*
 State::~State()
 {
 
 }
+*/
 /****************/
 /* END OF STATE */
 /****************/
@@ -49,10 +51,11 @@ StateMachine::StateMachine()
 
 }
 
+/*
 StateMachine::~StateMachine()
 {
-
 }
+*/
 
 // Add a state to state map
 void StateMachine::addState(State *state)

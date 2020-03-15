@@ -205,6 +205,52 @@ void TestAction()
 	}
 }
 
+void TestInvalidCommand()
+{
+	MotorDriver motorDriver;
+	StateMachine stateMachine(&motorDriver);
+	
+	State testState1(STATE_BOOT, STATE_PREOP, BOOT_TCond);
+	State testState2(STATE_PREOP, STATE_SAFEOP, PREOP_TCond);
+	State testState3(STATE_SAFEOP, STATE_OP, OP_TCond, OP_TOnEntry, OP_TOnExit);
+
+	stateMachine.addState(&testState1);
+	stateMachine.addState(&testState2);
+	stateMachine.addState(&testState3);
+
+	// Set state as StateOp
+	for (uint8_t i = 0; i < 6; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+
+	// Send invalid checksum
+	uint32_t request = WriteFlag::Write << 31 | MotorDriverRegisters::STATUSWORD << 24 | 0xFFAA << 8;
+	uint32_t response = motorDriver.transferData(request);
+
+	// Call update to simulate motor driver doing work
+	motorDriver.update();
+
+	uint32_t fault = stateMachine.read(MotorDriverRegisters::FAULT);
+
+	// Sleep for 100ms to simulate cyclic control
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+	if (1 == fault)
+	{
+		std::cout << "TestInvalidCommand passed" << std::endl;
+	}
+	else
+	{
+		std::cout << "TestInvalidCommand failed" << std::endl;
+	}
+}
+
 void Tests()
 {
 	TestStateCreate();
@@ -213,4 +259,5 @@ void Tests()
 	TestOnEntry();
 	TestOnExit();
 	TestAction();
+	TestInvalidCommand();
 }
