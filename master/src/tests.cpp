@@ -256,8 +256,8 @@ void TestInvalidStateChange()
 	MotorDriver motorDriver;
 	StateMachine stateMachine(&motorDriver);
 
-	State testState1(STATE_BOOT, STATE_SAFEOP, PREOP_TCond);
-	State testState2(STATE_SAFEOP, STATE_OP, OP_TCond);
+	State testState1(STATE_BOOT, STATE_OP, PREOP_TCond);
+	State testState2(STATE_OP, STATE_SAFEOP, OP_TCond);
 
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);

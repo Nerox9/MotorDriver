@@ -157,6 +157,8 @@ void StateMachine::run()
 	{
 		// Set current state as next state
 		currentState = states.at(currentState->nextState);
+		// Send request next state
+		write(MotorDriverRegisters::CONTROLWORD, currentState->motorState);
 		
 		activeTransition = TransitionStates::transOnEntry;
 	}

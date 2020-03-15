@@ -40,11 +40,30 @@ uint32_t MotorDriver::transferData(uint32_t data)
 
     if(writing)
     {
+		// Write encoder on SafeOp state only
+		if(command == ENCODER_VALUE && Registers[STATUSWORD] != MotorState::STATE_SAFEOP)
+		{
+			return 0;
+		}
+
+		// Write velocity command on Op state only
+		if (command == MOTOR_VELOCITY_COMMAND && Registers[STATUSWORD] != MotorState::STATE_OP)
+		{
+			return 0;
+		}
+
         Registers[command] = value;
         return 0;
     }
     else
     {
+		// Read encoder on SafeOp or Op states only
+		if (command == ENCODER_VALUE && (Registers[STATUSWORD] != MotorState::STATE_SAFEOP || Registers[STATUSWORD] != MotorState::STATE_OP))
+		{
+			return 0;
+		}
+
+		// Calculate with checksum (command value checksum)
 		uint32_t outData = command << 24 | Registers[command] << 8 | command^Registers[command];
         return outData;
     }
@@ -54,12 +73,97 @@ uint32_t MotorDriver::transferData(uint32_t data)
 
 void MotorDriver::update()
 {
+	// Boot State
     if(Registers[STATUSWORD] == MotorState::STATE_BOOT)
     {
-
-        Registers[STATUSWORD] = MotorState::STATE_PREOP;
-        Registers[CONTROLWORD] = MotorState::STATE_PREOP;
+		// If any control status request, raises fault flag
+		if (Registers[STATUSWORD] != Registers[CONTROLWORD])
+		{
+			Registers[FAULT] = 1;
+		}
+		// Else delay and go to PreOp State
+		else
+		{
+			for (uint8_t i = 0; i < 255; i++)
+			{
+				//nop delay
+			}
+			Registers[STATUSWORD] = MotorState::STATE_PREOP;
+			Registers[CONTROLWORD] = MotorState::STATE_PREOP;
+		}
     }
+
+	// PreOp State
+	else if (Registers[STATUSWORD] == MotorState::STATE_PREOP)
+	{
+		// If control state is not SafeOp or PreOp raises fault flag
+		if (Registers[CONTROLWORD] != MotorState::STATE_SAFEOP && Registers[CONTROLWORD] != MotorState::STATE_PREOP)
+		{
+			Registers[FAULT] = 1;
+		}
+		// Else go to SafeOp state
+		else 
+		{
+			Registers[STATUSWORD] = MotorState::STATE_SAFEOP;
+			Registers[CONTROLWORD] = MotorState::STATE_SAFEOP;
+		}
+	}
+
+	// SafeOp State
+	else if (Registers[STATUSWORD] == MotorState::STATE_SAFEOP)
+	{
+		// If control state is not Op or PreOp raises fault flag
+		if (Registers[CONTROLWORD] != MotorState::STATE_OP && Registers[CONTROLWORD] != MotorState::STATE_PREOP)
+		{
+			Registers[FAULT] = 1;
+		}
+		// If fault flag set, set status to Op state
+		else if (0 == Registers[FAULT])
+		{
+			Registers[STATUSWORD] = MotorState::STATE_OP;
+			Registers[CONTROLWORD] = MotorState::STATE_OP;
+		}
+		// If control state is PreOp go to the PreOp state
+		else if (Registers[CONTROLWORD] == MotorState::STATE_PREOP)
+		{
+			Registers[STATUSWORD] = MotorState::STATE_PREOP;
+		}
+		// Else raise fault flag
+		else
+		{
+			Registers[FAULT] = 1;
+		}
+	}
+
+	// OP State
+	else if (Registers[STATUSWORD] == MotorState::STATE_OP)
+	{
+		// If control state is not SafeOp or PreOp raises fault flag
+		if (Registers[CONTROLWORD] != MotorState::STATE_SAFEOP && Registers[CONTROLWORD] != MotorState::STATE_PREOP)
+		{
+			Registers[FAULT] = 1;
+		}
+		// If fault flag set, set status to SafeOp state
+		if (1 == Registers[FAULT])
+		{
+			Registers[STATUSWORD] = MotorState::STATE_SAFEOP;
+			Registers[CONTROLWORD] = MotorState::STATE_SAFEOP;
+		}
+		// If control state is PreOp go to the PreOp state
+		else if (MotorState::STATE_PREOP == Registers[CONTROLWORD])
+		{
+			Registers[STATUSWORD] = MotorState::STATE_PREOP;
+		}
+		// Else raise fault flag
+		else
+		{
+			Registers[FAULT] = 1;
+		}
+	}
+	else
+	{
+		Registers[FAULT] = 1;
+	}
 
     Registers[ENCODER_VALUE] += Registers[MOTOR_VELOCITY_COMMAND];
 }
