@@ -21,9 +21,11 @@ int main(void)
 
 
     MotorDriver motorDriver;
+	StateMachine stateMachine(&motorDriver);
 
     while(1)
     {
+		
         // Example request/response  send to the motor driver
         uint32_t request = MotorDriverRegisters::STATUSWORD << 24 | MotorDriverRegisters::STATUSWORD;
         uint32_t response = motorDriver.transferData(request);

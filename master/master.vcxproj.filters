@@ -19,9 +19,4 @@
       <UniqueIdentifier>{217FF634-4647-3F6B-8F07-767FD2E5423E}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\tests.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-  </ItemGroup>
 </Project>
