@@ -56,6 +56,7 @@ void MotorDriver::update()
 {
     if(Registers[STATUSWORD] == MotorState::STATE_BOOT)
     {
+
         Registers[STATUSWORD] = MotorState::STATE_PREOP;
         Registers[CONTROLWORD] = MotorState::STATE_PREOP;
     }

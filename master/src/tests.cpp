@@ -218,7 +218,7 @@ void TestInvalidCommand()
 	stateMachine.addState(&testState2);
 	stateMachine.addState(&testState3);
 
-	// Set state as StateOp
+	// Set state as SafeOp
 	for (uint8_t i = 0; i < 6; i++)
 	{
 		stateMachine.run();
@@ -251,6 +251,41 @@ void TestInvalidCommand()
 	}
 }
 
+void TestInvalidStateChange()
+{
+	MotorDriver motorDriver;
+	StateMachine stateMachine(&motorDriver);
+
+	State testState1(STATE_BOOT, STATE_SAFEOP, PREOP_TCond);
+	State testState2(STATE_SAFEOP, STATE_OP, OP_TCond);
+
+	stateMachine.addState(&testState1);
+	stateMachine.addState(&testState2);
+
+	stateMachine.write(MotorDriverRegisters::FAULT, 0);
+	// Set state from Boot to SafeOp
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	// Get fault because of invalid change
+	uint32_t fault = stateMachine.read(MotorDriverRegisters::FAULT);
+
+	if (1 == fault)
+	{
+		std::cout << "TestInvalidStateChange passed" << std::endl;
+	}
+	else
+	{
+		std::cout << "TestInvalidStateChange failed" << std::endl;
+	}
+}
+
 void Tests()
 {
 	TestStateCreate();
@@ -260,4 +295,5 @@ void Tests()
 	TestOnExit();
 	TestAction();
 	TestInvalidCommand();
+	TestInvalidStateChange();
 }

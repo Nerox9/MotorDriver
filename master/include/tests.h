@@ -15,4 +15,5 @@ void TestOnEntry();
 void TestOnExit();
 void TestAction();
 void TestInvalidCommand();
+void TestInvalidStateChange();
 #endif /* TESTS_H */
