@@ -35,6 +35,7 @@ public:
 typedef function<bool(StateMachineBase*)> TCond; // Transition Condition Function template
 typedef function<void(StateMachineBase*)> TOnEntry; // On Entry Function template
 typedef function<void(StateMachineBase*)> TOnExit; // On Exit Function template
+typedef function<uint16_t(StateMachineBase*)> TAction; // Action Function template
 
 
 // Transition Condition Functions
@@ -49,11 +50,17 @@ void PREOP_TOnEntry(StateMachineBase*);
 void SAFEOP_TOnEntry(StateMachineBase*);
 void OP_TOnEntry(StateMachineBase*);
 
-// On ExitFunctions
+// On Exit Functions
 void BOOT_TOnExit(StateMachineBase*);
 void PREOP_TOnExit(StateMachineBase*);
 void SAFEOP_TOnExit(StateMachineBase*);
 void OP_TOnExit(StateMachineBase*);
+
+// Action Functions
+uint16_t BOOT_TAction(StateMachineBase*);
+uint16_t PREOP_TAction(StateMachineBase*);
+uint16_t SAFEOP_TAction(StateMachineBase*);
+uint16_t OP_TAction(StateMachineBase*);
 
 class State
 {
@@ -63,12 +70,13 @@ public:
 	const TCond transitionCond;	// Transition Condition Function
 	const TOnEntry onEntry;		// OnEntry Function
 	const TOnExit onExit;		// OnExit Function
+	const TAction action;		// Action Function
 
 	// Constructor
 	State(MotorState, MotorState, const TCond);
 	State(MotorState, MotorState, const TCond, const TOnEntry);
 	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit);
-	//State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit, const TOnAction);
+	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit, const TAction);
 	// Deconstructor
 	~State();
 };
@@ -101,6 +109,8 @@ public:
 	MotorState getNextMotorState();
 	// Get Active Transition Flag
 	bool getTransition();
+	// Get Current State Pointer
+	State* getCurrentState();
 
 	// Checksum Calculator
 	uint8_t checksumCalc(uint32_t);

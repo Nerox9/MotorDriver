@@ -21,6 +21,12 @@ State::State(MotorState mtrState, MotorState next, const TCond transCond, const 
 
 }
 
+State::State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry, const TOnExit onExit, const TAction action)
+	: motorState(mtrState), nextState(next), transitionCond(transCond), onEntry(onEntry), onExit(onExit), action(action)
+{
+
+}
+
 State::~State()
 {
 
@@ -77,6 +83,12 @@ bool StateMachine::getTransition()
 	return TransitionStates::noTransition != activeTransition;
 }
 
+// Get Current State Pointer
+State* StateMachine::getCurrentState()
+{
+	return currentState;
+}
+
 // Checksum Calculator
 uint8_t StateMachine::checksumCalc(uint32_t data)
 {
@@ -130,7 +142,11 @@ void StateMachine::run()
 	// That could be switch case
 	if (TransitionStates::noTransition == activeTransition)
 	{
-		
+		if (currentState->action != NULL)
+		{
+			// Call action function of current state
+			currentState->action(this);
+		}
 	}
 	// These following functions were located in transition condition if block,
 	// however it does not wait a cycle therefore I decided to move them here

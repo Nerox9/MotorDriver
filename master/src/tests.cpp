@@ -169,6 +169,42 @@ void TestOnExit()
 	}
 }
 
+void TestAction()
+{
+	MotorDriver motorDriver;
+	StateMachine stateMachine(&motorDriver);
+
+	State testState2(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry, SAFEOP_TOnExit, SAFEOP_TAction);
+	State testState1(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry);
+
+	stateMachine.addState(&testState1);
+	stateMachine.addState(&testState2);
+
+	stateMachine.write(MotorDriverRegisters::MOTOR_VELOCITY_COMMAND, 10);
+
+	// Change State from SAFEOP to OP
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	// Read output enable register
+	uint16_t output = stateMachine.getCurrentState()->action(&stateMachine);
+
+	// Check the output disable
+	if (20 == output)
+	{
+		std::cout << "TestAction passed" << std::endl;
+	}
+	else
+	{
+		std::cout << "TestAction failed" << std::endl;
+	}
+}
+
 void Tests()
 {
 	TestStateCreate();
@@ -176,4 +212,5 @@ void Tests()
 	TestTransition();
 	TestOnEntry();
 	TestOnExit();
+	TestAction();
 }

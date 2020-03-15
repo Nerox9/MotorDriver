@@ -126,3 +126,42 @@ void OP_TOnExit(StateMachineBase* stateMachine)
 /****************************/
 /* END OF ON EXIT FUNCTIONS */
 /****************************/
+
+/***********************/
+/* ON ACTION FUNCTIONS */
+/***********************/
+// Boot state action function
+uint16_t BOOT_TAction(StateMachineBase* stateMachine)
+{
+	return 0;
+}
+
+// PreOp state action function
+uint16_t PREOP_TAction(StateMachineBase* stateMachine)
+{
+	return 0;
+}
+
+// SafeOp state action function
+uint16_t SAFEOP_TAction(StateMachineBase* stateMachine)
+{
+	// Read encoder value
+	uint32_t response = stateMachine->read(MotorDriverRegisters::ENCODER_VALUE);
+	// Clear fault flag
+	stateMachine->write(MotorDriverRegisters::FAULT, 0x00);
+	return response;
+}
+
+// Op state action function
+uint16_t OP_TAction(StateMachineBase* stateMachine)
+{
+	// Read encoder value
+	uint32_t response = stateMachine->read(MotorDriverRegisters::ENCODER_VALUE);
+	// TODO: Write motor command???
+	stateMachine->write(MotorDriverRegisters::CONTROLWORD, 0x00);
+	return response;
+}
+
+/***************************/
+/* END OF ACTION FUNCTIONS */
+/***************************/

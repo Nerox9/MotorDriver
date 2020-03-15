@@ -9,5 +9,9 @@
 
 void Tests();
 void TestStateCreate();
+void TestChecksum();
 void TestTransition();
+void TestOnEntry();
+void TestOnExit();
+void TestAction();
 #endif /* TESTS_H */
