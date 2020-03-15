@@ -1,7 +1,9 @@
 #ifndef TESTS_H
-#define TEST_H
+#define TESTS_H
 
 #include <iostream>
+#include <chrono>
+#include <thread>
 #include "motordriver.h"
 #include "statemachine.h"
 

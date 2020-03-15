@@ -266,6 +266,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\statemachine\src\statemachine.cpp" />
+    <ClCompile Include="src\statefunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\ZERO_CHECK.vcxproj">
@@ -274,6 +275,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\statefunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

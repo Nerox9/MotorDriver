@@ -14,38 +14,40 @@ enum WriteFlag
 	Write = 1
 };
 
-class StateBase
+class StateMachineBase
+{
+public:
+	// Write to motor driver
+	virtual	uint32_t Write(MotorDriverRegisters, uint16_t) = 0;
+	// Read from motor driver
+	virtual uint32_t Read(MotorDriverRegisters) = 0;
+	// Get next state as motor state
+	virtual MotorState getNextMotorState() = 0;
+};
+
+typedef function<bool(StateMachineBase*)> TCond; // Transition Condition Function template
+
+
+// Transition Condition Functions
+bool BOOT_TCond(StateMachineBase*);
+bool PREOP_TCond(StateMachineBase*);
+bool SAFEOP_TCond(StateMachineBase*);
+bool OP_TCond(StateMachineBase*);
+
+class State
 {
 public:
 	MotorState motorState;		// MotorState
 	MotorState nextState;		// Next MotorState
-
-	StateBase();
-	StateBase(MotorState, MotorState);
-};
-
-typedef function<bool(StateBase*, MotorDriver*)> TCond; // Transition Condition Function
-
-// Transition Condition Functions
-bool BOOT_TCond(StateBase*, MotorDriver*);
-bool PREOP_TCond(StateBase*, MotorDriver*);
-bool SAFEOP_TCond(StateBase*, MotorDriver*);
-bool OP_TCond(StateBase*, MotorDriver*);
-
-class State : public StateBase
-{
-public:
 	const TCond transitionCond;	// Transition Condition Function
 
-	//
-	State();
 	// Constructor
 	State(MotorState, MotorState, const TCond);
 	// Deconstructor
 	~State();
 };
 
-class StateMachine
+class StateMachine : public StateMachineBase
 {
 	// State map includes all states
 	map<MotorState, State*> states;
@@ -62,8 +64,17 @@ public:
 	StateMachine(MotorDriver *mtrDriver);
 	// Deconstructor
 	~StateMachine();
+
 	// Add a state to state map
 	void addState(State *state);
+	// Get next state as motor state
+	MotorState getNextMotorState();
+
+	// Write to motor driver
+	uint32_t Write(MotorDriverRegisters, uint16_t);
+	// Read from motor driver
+	uint32_t Read(MotorDriverRegisters);
+
 	// Run transition
 	void run();
 };

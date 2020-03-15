@@ -39,6 +39,8 @@ void TestTransition()
 	{
 		stateMachine.run();
 		motorDriver.update();
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 }
 

@@ -4,6 +4,9 @@
     <ClCompile Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\statemachine\src\statemachine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\statefunctions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\statemachine\CMakeLists.txt" />
@@ -12,5 +15,10 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{217FF634-4647-3F6B-8F07-767FD2E5423E}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\statefunctions.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
