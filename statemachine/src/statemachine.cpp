@@ -54,35 +54,45 @@ MotorState StateMachine::getNextMotorState()
 	return currentState->nextState;
 }
 
+// Get current state as motor state
+MotorState StateMachine::getMotorState()
+{
+	return currentState->motorState;
+}
+
+// Checksum Calculator
+uint8_t StateMachine::checksumCalc(uint32_t data)
+{
+	uint8_t checksum = 0;
+	// Calculate checksum
+	for (uint8_t i = 0; i < sizeof(data) / sizeof(uint8_t); ++i)
+	{
+		checksum ^= (data >> i * 8) & 0xFF;
+	}
+	return checksum;
+}
+
 // Write to motor driver
-uint32_t StateMachine::Write(MotorDriverRegisters mtrDriverReg, uint16_t value)
+uint32_t StateMachine::write(MotorDriverRegisters mtrDriverReg, uint16_t value)
 {
 	uint32_t request = WriteFlag::Write << 31 | mtrDriverReg << 24 |value << 8;
 	
 	// Calculate checksum
-	for (uint8_t i = 0; i < sizeof(request)/sizeof(uint8_t); ++i)
-	{
-		uint8_t checksum = request >> i * 8;
-		checksum ^= request & 0xFF;
-		request |= checksum;
-	}
+	uint8_t checksum = checksumCalc(request);
+	request |= checksum;
 
 	uint32_t response = motorDriver->transferData(request);
 	return response;
 }
 
 // Read from motor driver
-uint32_t StateMachine::Read(MotorDriverRegisters mtrDriverReg)
+uint32_t StateMachine::read(MotorDriverRegisters mtrDriverReg)
 {
 	uint32_t request = WriteFlag::Read << 31 | mtrDriverReg << 24;
 
 	// Calculate checksum
-	for (uint8_t i = 1; i < sizeof(request) / sizeof(uint8_t); ++i)
-	{
-		uint8_t checksum = request >> i * 8;
-		checksum ^= request & 0xFF;
-		request |= checksum;
-	}
+	uint8_t checksum = checksumCalc(request);
+	request |= checksum;
 
 	uint32_t response = motorDriver->transferData(request);
 	return response;

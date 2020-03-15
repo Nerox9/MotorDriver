@@ -18,14 +18,15 @@ class StateMachineBase
 {
 public:
 	// Write to motor driver
-	virtual	uint32_t Write(MotorDriverRegisters, uint16_t) = 0;
+	virtual	uint32_t write(MotorDriverRegisters, uint16_t) = 0;
 	// Read from motor driver
-	virtual uint32_t Read(MotorDriverRegisters) = 0;
+	virtual uint32_t read(MotorDriverRegisters) = 0;
 	// Get next state as motor state
 	virtual MotorState getNextMotorState() = 0;
 };
 
 typedef function<bool(StateMachineBase*)> TCond; // Transition Condition Function template
+typedef function<void(StateMachineBase*)> TOnEntry; // On Entry Function template
 
 
 // Transition Condition Functions
@@ -33,6 +34,9 @@ bool BOOT_TCond(StateMachineBase*);
 bool PREOP_TCond(StateMachineBase*);
 bool SAFEOP_TCond(StateMachineBase*);
 bool OP_TCond(StateMachineBase*);
+
+// On Entry Functions
+void BOOT_TOnEntry(StateMachineBase*);
 
 class State
 {
@@ -67,13 +71,17 @@ public:
 
 	// Add a state to state map
 	void addState(State *state);
+	// Get current state as motor state
+	MotorState getMotorState();
 	// Get next state as motor state
 	MotorState getNextMotorState();
 
+	// Checksum Calculator
+	uint8_t checksumCalc(uint32_t);
 	// Write to motor driver
-	uint32_t Write(MotorDriverRegisters, uint16_t);
+	uint32_t write(MotorDriverRegisters, uint16_t);
 	// Read from motor driver
-	uint32_t Read(MotorDriverRegisters);
+	uint32_t read(MotorDriverRegisters);
 
 	// Run transition
 	void run();

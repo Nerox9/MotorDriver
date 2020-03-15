@@ -10,7 +10,7 @@ bool BOOT_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current state register response
-	uint32_t response = stateMachine->Read(MotorDriverRegisters::STATUSWORD);
+	uint32_t response = stateMachine->read(MotorDriverRegisters::STATUSWORD);
 
 	// Remove checksum from response
 	uint32_t driverCurrentState = response >> 8;
@@ -35,7 +35,7 @@ bool SAFEOP_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current fault register response
-	uint32_t response = stateMachine->Read(MotorDriverRegisters::FAULT);
+	uint32_t response = stateMachine->read(MotorDriverRegisters::FAULT);
 
 	// Remove checksum from response
 	uint32_t faultValue = response >> 8;
@@ -53,7 +53,7 @@ bool OP_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current fault register response
-	uint32_t response = stateMachine->Read(MotorDriverRegisters::FAULT);
+	uint32_t response = stateMachine->read(MotorDriverRegisters::FAULT);
 
 	// Remove checksum from response
 	uint32_t faultValue = response >> 8;
@@ -65,4 +65,19 @@ bool OP_TCond(StateMachineBase *stateMachine)
 	return retval;
 }
 
+/*****************************************/
 /* END OF TRANSITION CONDITION FUNCTIONS */
+/*****************************************/
+
+/**********************/
+/* ON ENTRY FUNCTIONS */
+/**********************/
+
+void BOOT_TOnEntry(StateMachineBase*)
+{
+
+}
+
+/*****************************/
+/* END OF ON ENTRY FUNCTIONS */
+/*****************************/
