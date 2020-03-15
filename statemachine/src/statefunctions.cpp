@@ -73,9 +73,30 @@ bool OP_TCond(StateMachineBase *stateMachine)
 /* ON ENTRY FUNCTIONS */
 /**********************/
 
-void BOOT_TOnEntry(StateMachineBase*)
+// Boot state onEntry Function
+void BOOT_TOnEntry(StateMachineBase* stateMachine)
 {
 
+}
+
+// PreOp state onEntry Function
+void PREOP_TOnEntry(StateMachineBase* stateMachine)
+{
+
+}
+
+// SafeOp state onEntry Function
+void SAFEOP_TOnEntry(StateMachineBase* stateMachine)
+{
+	// Write 0 to encoder register
+	uint32_t response = stateMachine->write(MotorDriverRegisters::ENCODER_VALUE, 0x00);
+}
+
+// Op state onEntry Function
+void OP_TOnEntry(StateMachineBase* stateMachine)
+{
+	// Enable output
+	uint32_t response = stateMachine->write(MotorDriverRegisters::OUTPUT_ENABLE, 0x01);
 }
 
 /*****************************/

@@ -37,6 +37,9 @@ bool OP_TCond(StateMachineBase*);
 
 // On Entry Functions
 void BOOT_TOnEntry(StateMachineBase*);
+void PREOP_TOnEntry(StateMachineBase*);
+void SAFEOP_TOnEntry(StateMachineBase*);
+void OP_TOnEntry(StateMachineBase*);
 
 class State
 {
@@ -44,9 +47,10 @@ public:
 	MotorState motorState;		// MotorState
 	MotorState nextState;		// Next MotorState
 	const TCond transitionCond;	// Transition Condition Function
+	const TOnEntry onEntry;		// OnEntry Function
 
 	// Constructor
-	State(MotorState, MotorState, const TCond);
+	State(MotorState, MotorState, const TCond, const TOnEntry);
 	// Deconstructor
 	~State();
 };

@@ -3,8 +3,8 @@
 /*********/
 /* STATE */
 /*********/
-State::State(MotorState mtrState, MotorState next, const TCond transCond)
-	: motorState(mtrState), nextState(next), transitionCond(transCond)
+State::State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry)
+	: motorState(mtrState), nextState(next), transitionCond(transCond), onEntry(onEntry)
 {
 	
 }
@@ -81,6 +81,7 @@ uint32_t StateMachine::write(MotorDriverRegisters mtrDriverReg, uint16_t value)
 	uint8_t checksum = checksumCalc(request);
 	request |= checksum;
 
+	// Send data and get response
 	uint32_t response = motorDriver->transferData(request);
 	return response;
 }
@@ -94,7 +95,9 @@ uint32_t StateMachine::read(MotorDriverRegisters mtrDriverReg)
 	uint8_t checksum = checksumCalc(request);
 	request |= checksum;
 
+	// Send data and get response
 	uint32_t response = motorDriver->transferData(request);
+	response = response >> 8;
 	return response;
 }
 
@@ -110,8 +113,12 @@ void StateMachine::run()
 	// Check Transition Condition of Current State
 	if (transitionCondition(this))
 	{
+		// Call onExit function of current state
+		//currentState->onExit(this);
 		// Set current state as next state
 		currentState = states.at(currentState->nextState);
+		// Call onEntry function of current state
+		currentState->onEntry(this);
 	}
 	
 }
