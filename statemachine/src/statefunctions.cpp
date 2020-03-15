@@ -10,10 +10,7 @@ bool BOOT_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current state register response
-	uint32_t response = stateMachine->read(MotorDriverRegisters::STATUSWORD);
-
-	// Remove checksum from response
-	uint32_t driverCurrentState = response >> 8;
+	uint32_t driverCurrentState = stateMachine->read(MotorDriverRegisters::STATUSWORD);
 
 	// Check transition condition
 	if (stateMachine->getNextMotorState() == driverCurrentState)
@@ -35,10 +32,7 @@ bool SAFEOP_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current fault register response
-	uint32_t response = stateMachine->read(MotorDriverRegisters::FAULT);
-
-	// Remove checksum from response
-	uint32_t faultValue = response >> 8;
+	uint32_t faultValue = stateMachine->read(MotorDriverRegisters::FAULT);
 
 	// Check transition condition
 	if (faultValue != 1)
@@ -53,10 +47,7 @@ bool OP_TCond(StateMachineBase *stateMachine)
 	bool retval = false;
 
 	// Send request and get Motor driver current fault register response
-	uint32_t response = stateMachine->read(MotorDriverRegisters::FAULT);
-
-	// Remove checksum from response
-	uint32_t faultValue = response >> 8;
+	uint32_t faultValue = stateMachine->read(MotorDriverRegisters::FAULT);
 
 	// Check transition condition
 	if (faultValue == 1)
@@ -102,3 +93,36 @@ void OP_TOnEntry(StateMachineBase* stateMachine)
 /*****************************/
 /* END OF ON ENTRY FUNCTIONS */
 /*****************************/
+
+/*********************/
+/* ON EXIT FUNCTIONS */
+/*********************/
+
+// Boot state onExit Function
+void BOOT_TOnExit(StateMachineBase* stateMachine)
+{
+
+}
+
+// PreOp state onExit Function
+void PREOP_TOnExit(StateMachineBase* stateMachine)
+{
+
+}
+
+// SafeOp state onExit Function
+void SAFEOP_TOnExit(StateMachineBase* stateMachine)
+{
+
+}
+
+// Op state onExit Function
+void OP_TOnExit(StateMachineBase* stateMachine)
+{
+	// Disable output
+	uint32_t response = stateMachine->write(MotorDriverRegisters::OUTPUT_ENABLE, 0x00);
+}
+
+/****************************/
+/* END OF ON EXIT FUNCTIONS */
+/****************************/

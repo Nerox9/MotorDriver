@@ -3,10 +3,22 @@
 /*********/
 /* STATE */
 /*********/
+State::State(MotorState mtrState, MotorState next, const TCond transCond)
+	: motorState(mtrState), nextState(next), transitionCond(transCond)
+{
+
+}
+
 State::State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry)
 	: motorState(mtrState), nextState(next), transitionCond(transCond), onEntry(onEntry)
 {
 	
+}
+
+State::State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry, const TOnExit onExit)
+	: motorState(mtrState), nextState(next), transitionCond(transCond), onEntry(onEntry), onExit(onExit)
+{
+
 }
 
 State::~State()
@@ -20,7 +32,6 @@ State::~State()
 /*****************/
 /* STATE MACHINE */
 /*****************/
-
 StateMachine::StateMachine(MotorDriver *mtrDriver)
 	: motorDriver(mtrDriver)
 {
@@ -58,6 +69,12 @@ MotorState StateMachine::getNextMotorState()
 MotorState StateMachine::getMotorState()
 {
 	return currentState->motorState;
+}
+
+// Get Active Transition Flag
+bool StateMachine::getTransition()
+{
+	return TransitionStates::noTransition != activeTransition;
 }
 
 // Checksum Calculator
@@ -110,15 +127,40 @@ void StateMachine::run()
 
 	auto transitionCondition = currentState->transitionCond;
 
-	// Check Transition Condition of Current State
-	if (transitionCondition(this))
+	// That could be switch case
+	if (TransitionStates::noTransition == activeTransition)
 	{
-		// Call onExit function of current state
-		//currentState->onExit(this);
+		
+	}
+	// These following functions were located in transition condition if block,
+	// however it does not wait a cycle therefore I decided to move them here
+	else if(TransitionStates::transOnExit == activeTransition)
+	{
 		// Set current state as next state
 		currentState = states.at(currentState->nextState);
-		// Call onEntry function of current state
-		currentState->onEntry(this);
+		
+		activeTransition = TransitionStates::transOnEntry;
+	}
+	else if(TransitionStates::transOnEntry == activeTransition)
+	{
+		if (currentState->onEntry != NULL)
+		{
+			// Call onEntry function of current state
+			currentState->onEntry(this);
+		}
+		activeTransition = TransitionStates::noTransition;
+	}
+
+	// Check Transition Condition of Current State
+	if (TransitionStates::noTransition == activeTransition && transitionCondition(this))
+	{
+		activeTransition = TransitionStates::transOnExit;
+
+		if (currentState->onExit != NULL)
+		{
+			// Call onExit function of current state
+			currentState->onExit(this);
+		}
 	}
 	
 }

@@ -14,6 +14,13 @@ enum WriteFlag
 	Write = 1
 };
 
+enum TransitionStates
+{
+	noTransition = 0,
+	transOnEntry,
+	transOnExit
+};
+
 class StateMachineBase
 {
 public:
@@ -27,6 +34,7 @@ public:
 
 typedef function<bool(StateMachineBase*)> TCond; // Transition Condition Function template
 typedef function<void(StateMachineBase*)> TOnEntry; // On Entry Function template
+typedef function<void(StateMachineBase*)> TOnExit; // On Exit Function template
 
 
 // Transition Condition Functions
@@ -41,6 +49,12 @@ void PREOP_TOnEntry(StateMachineBase*);
 void SAFEOP_TOnEntry(StateMachineBase*);
 void OP_TOnEntry(StateMachineBase*);
 
+// On ExitFunctions
+void BOOT_TOnExit(StateMachineBase*);
+void PREOP_TOnExit(StateMachineBase*);
+void SAFEOP_TOnExit(StateMachineBase*);
+void OP_TOnExit(StateMachineBase*);
+
 class State
 {
 public:
@@ -48,9 +62,13 @@ public:
 	MotorState nextState;		// Next MotorState
 	const TCond transitionCond;	// Transition Condition Function
 	const TOnEntry onEntry;		// OnEntry Function
+	const TOnExit onExit;		// OnExit Function
 
 	// Constructor
+	State(MotorState, MotorState, const TCond);
 	State(MotorState, MotorState, const TCond, const TOnEntry);
+	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit);
+	//State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit, const TOnAction);
 	// Deconstructor
 	~State();
 };
@@ -61,6 +79,8 @@ class StateMachine : public StateMachineBase
 	map<MotorState, State*> states;
 	// Active state
 	State *currentState;
+	// Indicates transition state
+	TransitionStates activeTransition = TransitionStates::noTransition;
 
 public:
 	// MotorDriver for transitions
@@ -79,6 +99,8 @@ public:
 	MotorState getMotorState();
 	// Get next state as motor state
 	MotorState getNextMotorState();
+	// Get Active Transition Flag
+	bool getTransition();
 
 	// Checksum Calculator
 	uint8_t checksumCalc(uint32_t);

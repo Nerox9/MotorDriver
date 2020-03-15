@@ -46,16 +46,17 @@ void TestTransition()
 	MotorDriver motorDriver;
 	StateMachine stateMachine(&motorDriver);
 	
-	State testState1(STATE_BOOT, STATE_PREOP, BOOT_TCond, BOOT_TOnEntry);
-	State testState2(STATE_PREOP, STATE_SAFEOP, PREOP_TCond, PREOP_TOnEntry);
+	State testState1(STATE_BOOT, STATE_PREOP, BOOT_TCond);
+	State testState2(STATE_PREOP, STATE_SAFEOP, PREOP_TCond);
 
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
 
-	for (uint8_t i = 0; i < 2; i++)
+	for (uint8_t i = 0; i < 3; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
+
 		// Sleep for 100ms to simulate cyclic control
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -81,12 +82,36 @@ void TestOnEntry()
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
 
+	// Set velocity to 10 to determine encoder value
 	stateMachine.write(MotorDriverRegisters::MOTOR_VELOCITY_COMMAND, 10);
+	stateMachine.write(MotorDriverRegisters::FAULT, 0);
 
+	// Change State from SAFEOP to OP and encoder counts up to 50
 	for (uint8_t i = 0; i < 5; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
+
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	// Change State from OP to SAFEOP
+	stateMachine.write(MotorDriverRegisters::FAULT, 1);
+
+	// Encoder counts up to 20
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+
+		// Index is decremented because:
+		// That block could be useful set the how many steps without transition onEntry and onExit steps
+		if (TransitionStates::noTransition != stateMachine.getTransition())
+		{
+			i--;
+		}
+
 		// Sleep for 100ms to simulate cyclic control
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
@@ -94,7 +119,10 @@ void TestOnEntry()
 	// Read encoder value
 	uint32_t encoder = stateMachine.read(MotorDriverRegisters::ENCODER_VALUE);
 
-	if (50 == encoder)
+	// It checks encoder is reset on SafeOp state transition
+	// If its value is higher than 50, than it does not reset the encoder value
+	// 
+	if (20 == encoder)
 	{
 		std::cout << "TestOnEntry passed" << std::endl;
 	}
@@ -104,10 +132,48 @@ void TestOnEntry()
 	}
 }
 
+void TestOnExit()
+{
+	MotorDriver motorDriver;
+	StateMachine stateMachine(&motorDriver);
+
+	State testState1(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry, OP_TOnExit);
+	State testState2(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry);
+
+	stateMachine.addState(&testState1);
+	stateMachine.addState(&testState2);
+
+	// Enable the output
+	stateMachine.write(MotorDriverRegisters::OUTPUT_ENABLE, 1);
+
+	// Change State from OP to SAFEOP
+	for (uint8_t i = 0; i < 2; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
+
+	// Read output enable register
+	uint32_t output = stateMachine.read(MotorDriverRegisters::OUTPUT_ENABLE);
+
+	// Check the output disable
+	if (0 == output)
+	{
+		std::cout << "TestOnExit passed" << std::endl;
+	}
+	else
+	{
+		std::cout << "TestOnExit failed" << std::endl;
+	}
+}
+
 void Tests()
 {
 	TestStateCreate();
 	TestChecksum();
 	TestTransition();
 	TestOnEntry();
+	TestOnExit();
 }
