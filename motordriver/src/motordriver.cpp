@@ -24,7 +24,19 @@ uint32_t MotorDriver::transferData(uint32_t data)
     uint16_t value = (data >> 8) & 0xFFFF;
     uint8_t checksum = data & 0xFF;
 
-    // TODO: Implement checksum
+	uint8_t checksum_calculated = 0;
+	// Calculate true checksum
+	for (uint8_t i = 1; i < sizeof(data) / sizeof(uint8_t); ++i)
+	{
+		checksum_calculated ^= (data >> i * 8) & 0xFF;
+	}
+
+	// Compare input checksum and true checksum
+	if (checksum != checksum_calculated)
+	{
+		Registers[MotorDriverRegisters::FAULT] = 1;
+		return 0;
+	}
 
     if(writing)
     {
@@ -33,9 +45,8 @@ uint32_t MotorDriver::transferData(uint32_t data)
     }
     else
     {
-
-        // TODO: Implement checksum for response
-        return Registers[command] << 8;
+		uint32_t outData = command << 24 | Registers[command] << 8 | command^Registers[command];
+        return outData;
     }
 
 

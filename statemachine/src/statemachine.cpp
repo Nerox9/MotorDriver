@@ -129,7 +129,7 @@ uint32_t StateMachine::read(MotorDriverRegisters mtrDriverReg)
 
 	// Send data and get response
 	uint32_t response = motorDriver->transferData(request);
-	response = response >> 8;
+	response = (response >> 8) & 0xFF;
 	return response;
 }
 

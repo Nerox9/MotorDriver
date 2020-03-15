@@ -174,8 +174,8 @@ void TestAction()
 	MotorDriver motorDriver;
 	StateMachine stateMachine(&motorDriver);
 
-	State testState2(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry, SAFEOP_TOnExit, SAFEOP_TAction);
-	State testState1(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry);
+	State testState1(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry, SAFEOP_TOnExit, SAFEOP_TAction);
+	State testState2(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry);
 
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
@@ -183,7 +183,7 @@ void TestAction()
 	stateMachine.write(MotorDriverRegisters::MOTOR_VELOCITY_COMMAND, 10);
 
 	// Change State from SAFEOP to OP
-	for (uint8_t i = 0; i < 2; i++)
+	for (uint8_t i = 0; i < 1; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
@@ -195,7 +195,7 @@ void TestAction()
 	uint16_t output = stateMachine.getCurrentState()->action(&stateMachine);
 
 	// Check the output disable
-	if (20 == output)
+	if (10 == output)
 	{
 		std::cout << "TestAction passed" << std::endl;
 	}
