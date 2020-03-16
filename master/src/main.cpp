@@ -23,12 +23,23 @@ int main(void)
     MotorDriver motorDriver;
 	StateMachine stateMachine(&motorDriver);
 
+	State testState1(STATE_BOOT, STATE_PREOP, BOOT_TCond);
+	State testState2(STATE_PREOP, STATE_SAFEOP, PREOP_TCond);
+	State testState3(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry, SAFEOP_TOnExit, SAFEOP_TAction);
+	State testState4(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry, OP_TOnExit, OP_TAction);
+
+	stateMachine.addState(&testState1);
+	stateMachine.addState(&testState2);
+	stateMachine.addState(&testState3);
+	stateMachine.addState(&testState4);
+
     while(1)
     {
 		
-        // Example request/response  send to the motor driver
-        uint32_t request = MotorDriverRegisters::STATUSWORD << 24 | MotorDriverRegisters::STATUSWORD;
-        uint32_t response = motorDriver.transferData(request);
+		stateMachine.run();
+		motorDriver.update();
+
+		uint32_t response = stateMachine.read(MotorDriverRegisters::STATUSWORD);
 
         std::cout << "Response to status word request: " << response << std::endl;
 

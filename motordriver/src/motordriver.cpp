@@ -58,7 +58,7 @@ uint32_t MotorDriver::transferData(uint32_t data)
     else
     {
 		// Read encoder on SafeOp or Op states only
-		if (command == ENCODER_VALUE && (Registers[STATUSWORD] != MotorState::STATE_SAFEOP || Registers[STATUSWORD] != MotorState::STATE_OP))
+		if (command == ENCODER_VALUE && (Registers[STATUSWORD] != MotorState::STATE_SAFEOP && Registers[STATUSWORD] != MotorState::STATE_OP))
 		{
 			return 0;
 		}
@@ -112,8 +112,8 @@ void MotorDriver::update()
 	// SafeOp State
 	else if (Registers[STATUSWORD] == MotorState::STATE_SAFEOP)
 	{
-		// If control state is not Op or PreOp raises fault flag
-		if (Registers[CONTROLWORD] != MotorState::STATE_OP && Registers[CONTROLWORD] != MotorState::STATE_PREOP)
+		// If control state is not Op, PreOp or SafeOp raises fault flag
+		if (Registers[CONTROLWORD] != MotorState::STATE_OP && Registers[CONTROLWORD] != MotorState::STATE_PREOP && Registers[CONTROLWORD] != MotorState::STATE_SAFEOP)
 		{
 			Registers[FAULT] = 1;
 		}
@@ -123,10 +123,15 @@ void MotorDriver::update()
 			Registers[STATUSWORD] = MotorState::STATE_OP;
 			Registers[CONTROLWORD] = MotorState::STATE_OP;
 		}
-		// If control state is PreOp go to the PreOp state
+		// If control state is PreOp, go to PreOp
 		else if (Registers[CONTROLWORD] == MotorState::STATE_PREOP)
 		{
 			Registers[STATUSWORD] = MotorState::STATE_PREOP;
+		}
+		// Stay same state
+		else if(Registers[CONTROLWORD] == MotorState::STATE_SAFEOP)
+		{
+			// Do nothing
 		}
 		// Else raise fault flag
 		else
@@ -138,8 +143,8 @@ void MotorDriver::update()
 	// OP State
 	else if (Registers[STATUSWORD] == MotorState::STATE_OP)
 	{
-		// If control state is not SafeOp or PreOp raises fault flag
-		if (Registers[CONTROLWORD] != MotorState::STATE_SAFEOP && Registers[CONTROLWORD] != MotorState::STATE_PREOP)
+		// If control state is not Op, PreOp or SafeOp raises fault flag
+		if (Registers[CONTROLWORD] != MotorState::STATE_SAFEOP && Registers[CONTROLWORD] != MotorState::STATE_PREOP && Registers[CONTROLWORD] != MotorState::STATE_OP)
 		{
 			Registers[FAULT] = 1;
 		}
@@ -153,6 +158,11 @@ void MotorDriver::update()
 		else if (MotorState::STATE_PREOP == Registers[CONTROLWORD])
 		{
 			Registers[STATUSWORD] = MotorState::STATE_PREOP;
+		}
+		// Stay same state
+		else if (Registers[CONTROLWORD] == MotorState::STATE_OP)
+		{
+			// Do nothing
 		}
 		// Else raise fault flag
 		else

@@ -158,7 +158,7 @@ uint16_t OP_TAction(StateMachineBase* stateMachine)
 	// Read encoder value
 	uint32_t response = stateMachine->read(MotorDriverRegisters::ENCODER_VALUE);
 	// TODO: Write motor command???
-	stateMachine->write(MotorDriverRegisters::CONTROLWORD, 0x00);
+	stateMachine->write(MotorDriverRegisters::MOTOR_VELOCITY_COMMAND, 10);
 	return response;
 }
 
