@@ -1,4 +1,6 @@
 #include <cstdint>
+#include <chrono>
+#include <thread>
 #include "motordriver.h"
 
 
@@ -84,10 +86,7 @@ void MotorDriver::update()
 		// Else delay and go to PreOp State
 		else
 		{
-			for (uint8_t i = 0; i < 255; i++)
-			{
-				//nop delay
-			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 			Registers[STATUSWORD] = MotorState::STATE_PREOP;
 			Registers[CONTROLWORD] = MotorState::STATE_PREOP;
 		}

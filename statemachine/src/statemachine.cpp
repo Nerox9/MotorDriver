@@ -140,40 +140,26 @@ void StateMachine::run()
 		return;
 	}
 
-	auto transitionCondition = currentState->transitionCond;
+	if (currentState->action != NULL)
+	{
+		// Call action function of current state
+		currentState->action(this);
+	}
 
-	// That could be switch case
-	if (TransitionStates::noTransition == activeTransition)
+	if (TransitionStates::transOnExit == activeTransition)
 	{
-		if (currentState->action != NULL)
-		{
-			// Call action function of current state
-			currentState->action(this);
-		}
-	}
-	// These following functions were located in transition condition if block,
-	// however it does not wait a cycle therefore I decided to move them here
-	else if(TransitionStates::transOnExit == activeTransition)
-	{
-		// Set current state as next state
-		currentState = states.at(currentState->nextState);
-		// Send request next state
-		write(MotorDriverRegisters::CONTROLWORD, currentState->motorState);
-		
-		activeTransition = TransitionStates::transOnEntry;
-	}
-	else if(TransitionStates::transOnEntry == activeTransition)
-	{
+		activeTransition = TransitionStates::noTransition;
 		if (currentState->onEntry != NULL)
 		{
 			// Call onEntry function of current state
 			currentState->onEntry(this);
 		}
-		activeTransition = TransitionStates::noTransition;
 	}
 
+	auto transitionCondition = currentState->transitionCond;
+
 	// Check Transition Condition of Current State
-	if (TransitionStates::noTransition == activeTransition && transitionCondition(this))
+	if (transitionCondition(this))
 	{
 		activeTransition = TransitionStates::transOnExit;
 
@@ -182,6 +168,11 @@ void StateMachine::run()
 			// Call onExit function of current state
 			currentState->onExit(this);
 		}
+
+		// Set current state as next state
+		currentState = states.at(currentState->nextState);
+		// Send request next state
+		write(MotorDriverRegisters::CONTROLWORD, currentState->motorState);
 	}
 	
 }

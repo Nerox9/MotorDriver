@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\motordriver\src\.gitkeep" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">

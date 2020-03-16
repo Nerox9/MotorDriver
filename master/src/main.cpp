@@ -37,15 +37,12 @@ int main(void)
     {
 		
 		stateMachine.run();
+		// Call update to simulate motor driver doing work
 		motorDriver.update();
 
 		uint32_t response = stateMachine.read(MotorDriverRegisters::STATUSWORD);
 
         std::cout << "Response to status word request: " << response << std::endl;
-
-
-        // Call update to simulate motor driver doing work
-        motorDriver.update();
 
         // Sleep for 100ms to simulate cyclic control
         std::this_thread::sleep_for (std::chrono::milliseconds(100));

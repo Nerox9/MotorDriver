@@ -267,6 +267,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <None Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\motordriver\src\.gitkeep" />
     <ClCompile Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\motordriver\src\motordriver.cpp" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\asus\source\repos\Nerox9\MotorDriver\ZERO_CHECK.vcxproj">

@@ -52,7 +52,7 @@ void TestTransition()
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
 
-	for (uint8_t i = 0; i < 3; i++)
+	for (uint8_t i = 0; i < 2; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
@@ -87,19 +87,10 @@ void TestOnEntry()
 	stateMachine.addState(&testState4);
 
 	// Change State from BOOT to OP
-	for (uint8_t i = 0; i < 9; i++)
+	for (uint8_t i = 0; i < 4; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
-
-		/*
-		// Index is decremented because:
-		// That block could be useful set the how many steps without transition onEntry and onExit steps
-		if (TransitionStates::noTransition != stateMachine.getTransition())
-		{
-			i--;
-		}
-		*/
 
 		// Sleep for 100ms to simulate cyclic control
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -121,9 +112,9 @@ void TestOnEntry()
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
 
-	// Change State from OP to SAFEOP
+	// Change State from OP to SAFEOP and reset encoder
 	stateMachine.write(MotorDriverRegisters::FAULT, 1);
-	for (uint8_t i = 0; i < 2; i++)
+	for (uint8_t i = 0; i < 1; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
@@ -131,6 +122,9 @@ void TestOnEntry()
 		// Sleep for 100ms to simulate cyclic control
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
+
+	// Read encoder value
+	uint32_t encoder = stateMachine.read(MotorDriverRegisters::ENCODER_VALUE);
 
 	// Change State from SAFEOP to OP and count
 	stateMachine.write(MotorDriverRegisters::FAULT, 0);
@@ -144,7 +138,7 @@ void TestOnEntry()
 	}
 
 	// Read encoder value
-	uint32_t encoder = stateMachine.read(MotorDriverRegisters::ENCODER_VALUE);
+	encoder = stateMachine.read(MotorDriverRegisters::ENCODER_VALUE);
 
 	// It checks encoder is reset on SafeOp state transition
 	// If its value is higher than 50, than it does not reset the encoder value
@@ -164,15 +158,26 @@ void TestOnExit()
 	MotorDriver motorDriver;
 	StateMachine stateMachine(&motorDriver);
 
-	State testState1(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry, OP_TOnExit);
-	State testState2(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry);
+	State testState1(STATE_BOOT, STATE_PREOP, BOOT_TCond);
+	State testState2(STATE_PREOP, STATE_SAFEOP, PREOP_TCond);
+	State testState3(STATE_SAFEOP, STATE_OP, SAFEOP_TCond, SAFEOP_TOnEntry, SAFEOP_TOnExit, SAFEOP_TAction);
+	State testState4(STATE_OP, STATE_SAFEOP, OP_TCond, OP_TOnEntry, OP_TOnExit, OP_TAction);
 
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
+	stateMachine.addState(&testState3);
+	stateMachine.addState(&testState4);
 
-	// Enable the output
-	stateMachine.write(MotorDriverRegisters::OUTPUT_ENABLE, 1);
+	// Change State from BOOT to OP
+	for (uint8_t i = 0; i < 4; i++)
+	{
+		stateMachine.run();
+		motorDriver.update();
+		// Sleep for 100ms to simulate cyclic control
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	}
 
+	stateMachine.write(MotorDriverRegisters::FAULT, 1);
 	// Change State from OP to SAFEOP
 	for (uint8_t i = 0; i < 2; i++)
 	{
@@ -212,7 +217,7 @@ void TestAction()
 	stateMachine.addState(&testState4);
 
 	// Change State from BOOT to OP
-	for (uint8_t i = 0; i < 10; i++)
+	for (uint8_t i = 0; i < 5; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
@@ -248,7 +253,7 @@ void TestInvalidCommand()
 	stateMachine.addState(&testState3);
 
 	// Set state as SafeOp
-	for (uint8_t i = 0; i < 6; i++)
+	for (uint8_t i = 0; i < 3; i++)
 	{
 		stateMachine.run();
 		motorDriver.update();
@@ -287,9 +292,11 @@ void TestInvalidStateChange()
 
 	State testState1(STATE_BOOT, STATE_OP, PREOP_TCond);
 	State testState2(STATE_OP, STATE_SAFEOP, OP_TCond);
+	State testState3(STATE_SAFEOP, STATE_OP, OP_TCond, OP_TOnEntry, OP_TOnExit);
 
 	stateMachine.addState(&testState1);
 	stateMachine.addState(&testState2);
+	stateMachine.addState(&testState3);
 
 	stateMachine.write(MotorDriverRegisters::FAULT, 0);
 	// Set state from Boot to SafeOp

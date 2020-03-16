@@ -21,105 +21,256 @@ enum TransitionStates
 	transOnExit
 };
 
+/**
+ * @brief The StateMachineBase class
+ *
+ * This is the base class implementation of state machine because of State Functions Declearation
+ *
+ */
 class StateMachineBase
 {
 public:
-	// Write to motor driver
-	virtual	uint32_t write(MotorDriverRegisters, uint16_t) = 0;
-	// Read from motor driver
-	virtual uint32_t read(MotorDriverRegisters) = 0;
-	// Get next state as motor state
+	/**
+	 * @brief Write data to motor driver register
+	 * @param mtrDriverReg Register data to write
+	 * @param value Data to write
+	 * @return Received data
+	 */
+	virtual	uint32_t write(MotorDriverRegisters mtrDriverReg, uint16_t value) = 0;
+
+	/**
+	 * @brief Read data from motor driver register
+	 * @param mtrDriverReg Register data to read
+	 * @return Received data
+	 */
+	virtual uint32_t read(MotorDriverRegisters mtrDriverReg) = 0;
+
+	/**
+	* @brief Get current state as motor state
+	* @return Next Motor State as MotorDriver MotorState enum
+	*/
 	virtual MotorState getNextMotorState() = 0;
 };
 
+/**
+* @brief Templates of State Functions
+*/
 typedef function<bool(StateMachineBase*)> TCond; // Transition Condition Function template
 typedef function<void(StateMachineBase*)> TOnEntry; // On Entry Function template
 typedef function<void(StateMachineBase*)> TOnExit; // On Exit Function template
 typedef function<uint16_t(StateMachineBase*)> TAction; // Action Function template
 
 
-// Transition Condition Functions
-bool BOOT_TCond(StateMachineBase*);
-bool PREOP_TCond(StateMachineBase*);
-bool SAFEOP_TCond(StateMachineBase*);
-bool OP_TCond(StateMachineBase*);
+/**
+* @brief Transition Condition Functions for all states
+* @param stateMachine State Machine pointer
+* @return True if condition is met
+*/
+bool BOOT_TCond(StateMachineBase* stateMachine);
+bool PREOP_TCond(StateMachineBase* stateMachine);
+bool SAFEOP_TCond(StateMachineBase* stateMachine);
+bool OP_TCond(StateMachineBase* stateMachine);
 
-// On Entry Functions
-void BOOT_TOnEntry(StateMachineBase*);
-void PREOP_TOnEntry(StateMachineBase*);
-void SAFEOP_TOnEntry(StateMachineBase*);
-void OP_TOnEntry(StateMachineBase*);
+/**
+* @brief On Entry Functions for all states
+* @param stateMachine State Machine pointer
+*/
+void BOOT_TOnEntry(StateMachineBase* stateMachine);
+void PREOP_TOnEntry(StateMachineBase* stateMachine);
+void SAFEOP_TOnEntry(StateMachineBase* stateMachine);
+void OP_TOnEntry(StateMachineBase* stateMachine);
 
-// On Exit Functions
-void BOOT_TOnExit(StateMachineBase*);
-void PREOP_TOnExit(StateMachineBase*);
-void SAFEOP_TOnExit(StateMachineBase*);
-void OP_TOnExit(StateMachineBase*);
 
-// Action Functions
-uint16_t BOOT_TAction(StateMachineBase*);
-uint16_t PREOP_TAction(StateMachineBase*);
-uint16_t SAFEOP_TAction(StateMachineBase*);
-uint16_t OP_TAction(StateMachineBase*);
+/**
+* @brief On Exit Functions for all states
+* @param stateMachine State Machine pointer
+*/
+void BOOT_TOnExit(StateMachineBase* stateMachine);
+void PREOP_TOnExit(StateMachineBase* stateMachine);
+void SAFEOP_TOnExit(StateMachineBase* stateMachine);
+void OP_TOnExit(StateMachineBase* stateMachine);
+
+/**
+* @brief Action Functions for all states
+* @param stateMachine State Machine pointer
+* @return Received data
+*/
+uint16_t BOOT_TAction(StateMachineBase* stateMachine);
+uint16_t PREOP_TAction(StateMachineBase* stateMachine);
+uint16_t SAFEOP_TAction(StateMachineBase* stateMachine);
+uint16_t OP_TAction(StateMachineBase* stateMachine);
 
 class State
 {
 public:
+	/**
+	 * @brief Current MotorDriver Motor State
+	 */
 	MotorState motorState;		// MotorState
+
+	/**
+	 * @brief Next MotorDriver Motor State
+	 */
 	MotorState nextState;		// Next MotorState
+
+	/**
+	 * @brief Transition Condition Function of State
+	 */
 	const TCond transitionCond;	// Transition Condition Function
+
+	/**
+	 * @brief On Entry Function of State
+	 */
 	const TOnEntry onEntry;		// OnEntry Function
+
+	/**
+	 * @brief On Exit Function of State
+	 */
 	const TOnExit onExit;		// OnExit Function
+
+	/**
+	 * @brief Action Function of State
+	 */
 	const TAction action;		// Action Function
 
-	// Constructor
-	State(MotorState, MotorState, const TCond);
-	State(MotorState, MotorState, const TCond, const TOnEntry);
-	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit);
-	State(MotorState, MotorState, const TCond, const TOnEntry, const TOnExit, const TAction);
+	/**
+	 * @brief State
+	 * Constructor. Creates the MotorState
+	 * @param mtrState MotorDriver motor state enum
+	 * @param next Next MotorDriver motor state enum
+	 * @param transCond Transition Condition for state
+	 */
+	State(MotorState mtrState, MotorState next, const TCond transCond);
+
+	/**
+	 * @brief State
+	 * Constructor. Creates the MotorState
+	 * @param mtrState MotorDriver motor state enum
+	 * @param next Next MotorDriver motor state enum
+	 * @param transCond Transition Condition for state
+	 * @param onEntry On Entry Function for state
+	 */
+	State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry);
+
+	/**
+	 * @brief State
+	 * Constructor. Creates the MotorState
+	 * @param mtrState MotorDriver motor state enum
+	 * @param next Next MotorDriver motor state enum
+	 * @param transCond Transition Condition for state
+	 * @param onEntry On Entry Function for state
+	 * @param onExit On Exit Function for state
+	 */
+	State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry, const TOnExit onExit);
+
+	/**
+	 * @brief State
+	 * Constructor. Creates the MotorState
+	 * @param mtrState MotorDriver motor state enum
+	 * @param next Next MotorDriver motor state enum
+	 * @param transCond Transition Condition for state
+	 * @param onEntry On Entry Function for state
+	 * @param onExit On Exit Function for state
+	 * @param action Action Function for state
+	 */
+	State(MotorState mtrState, MotorState next, const TCond transCond, const TOnEntry onEntry, const TOnExit onExit, const TAction action);
 	// Destructor
 	//~State();
 };
 
 class StateMachine : public StateMachineBase
 {
-	// State map includes all states
+	/**
+	 * @brief State map includes all states of State Machine
+	 */
 	map<MotorState, State*> states;
-	// Active state
+
+	/**
+	 * @brief Active state of State Machine
+	 */
 	State *currentState;
-	// Indicates transition state
+
+	/**
+	 * @brief Indicates transition state
+	 */
 	TransitionStates activeTransition = TransitionStates::noTransition;
 
 public:
-	// MotorDriver for transitions
+	/**
+	 * @brief MotorDriver for transitions
+	 */
 	MotorDriver *motorDriver;
 
-	// Constructor without transition
+	/**
+	 * @brief StateMachine
+	 * Constructor. Creates the State Machine
+	 */
 	StateMachine();
-	// Constructor
+	
+	/**
+	 * @brief StateMachine
+	 * Constructor. Creates the State Machine
+	 * @param mtrDriver MotorDriver to send and receive data
+	 */
 	StateMachine(MotorDriver *mtrDriver);
 	// Destructor
 	//~StateMachine();
 
-	// Add a state to state map
+	/**
+	* @brief Add a state to state map
+	* @param state State pointer
+	*/
 	void addState(State *state);
-	// Get current state as motor state
+
+	/**
+	* @brief Get current state as motor state
+	* @return Current Motor State as MotorDriver MotorState enum
+	*/
 	MotorState getMotorState();
-	// Get next state as motor state
+	
+	/**
+	* @brief Get current state as motor state
+	* @return Next Motor State as MotorDriver MotorState enum
+	*/
 	MotorState getNextMotorState();
-	// Get Active Transition Flag
+	
+	/**
+	* @brief Get active transition status
+	* @return True if status is noTransition
+	*/
 	bool getTransition();
-	// Get Current State Pointer
+	
+	/**
+	* @brief Get current state pointer
+	* @return Current state pointer
+	*/
 	State* getCurrentState();
 
-	// Checksum Calculator
-	uint8_t checksumCalc(uint32_t);
-	// Write to motor driver
+	/**
+	* @brief Checksum Calculator
+	* @param data Checksum calculation data
+	* @return Checksum of data
+	*/
+	uint8_t checksumCalc(uint32_t data);
+	
+	/**
+	 * @brief Write data to motor driver register
+	 * @param mtrDriverReg Register data to write
+	 * @param value Data to write
+	 * @return Received data
+	 */
 	uint32_t write(MotorDriverRegisters, uint16_t);
-	// Read from motor driver
+	
+	/**
+	 * @brief Read data from motor driver register
+	 * @param mtrDriverReg Register data to read
+	 * @return Received data
+	 */
 	uint32_t read(MotorDriverRegisters);
 
-	// Run transition
+	/**
+	 * @brief Run Transition and State Functions
+	 */
 	void run();
 };
 
