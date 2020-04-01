@@ -1,2 +1,2 @@
 # MotorDriver
-Motor Driver with state machine with C++
+Motor Driver with C++ state machine
